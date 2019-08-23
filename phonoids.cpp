@@ -3,6 +3,8 @@
 #include <map>
 #include "gentypes.h"
 
+const unsigned short DEFAULT_MAX_PHONOID_LENGTH = 2;
+
 // checks whether x is a member of vec
 bool vIN(const std::vector<std::string>& vec, const std::string& x)
 {
@@ -79,15 +81,10 @@ std::map<std::string, std::map<std::string, std::string>> spelling_exchanges;
 
 // checking whether phonoids need be reinitialize
 bool initialization_needed = true;
+
 void initializePhonoids()
 {
-    /**
-    !!!!!!!!!!!!!!!!!!!!!!!
-    !!!HALLO FROM SWEDEN!!!
-    !!!!!!!!!!!!!!!!!!!!!!!
-    HEY! make sure to change the default max phonoid length down in 'maxPhonoidLength()'
-    if you tell this function to make phonoids of length > 2
-    */
+    // if phonoids of length greater than 2 characters are to be made, then the constant at the top needs to be changed
     if (!initialization_needed) return;
     spelling_exchanges["default"] = {};
     
@@ -96,9 +93,11 @@ void initializePhonoids()
         rwy = {"r","w","y"},
         sz = {"s","z"},
         r_suffices = {"b","d","f","g","j","l","m","n","p","s","t","v","z"};
+    
     // creates vowels
     v_un = {"a","e","i","o","u"}; // unary vowels
     v_bin = CartProd( v_un, v_un ); // binary vowels
+    
     // creates initiative phonoids
     i = {"h","w","y"}; // singletons
     vOR(sz,rwy); // example
@@ -108,11 +107,13 @@ void initializePhonoids()
     i_n_suf = CartProd( "n", vNAND( rwy, "r" )); // n suffices
     i_t_suf = CartProd( "t", rwy ); // t suffices
     i_s_suf = CartProd( "s", {"l","m","n","r","v","w","y"} ); // s suffices
+    
     // creates duplifix phonoids
     d = {"b","d","f","g","j","k","l","m","n","p","r","s","t","v","z"}; // singletons
     d_h_pre = CartProd( vOR( sz, {"c","t"}), {"h"} ); // h prefices
     d_s_suf = CartProd( "s", {"k", "p", "t"} ); // s suffices
     d_t_suf = CartProd( "t", vOR( "l", sz )); // t suffices
+    
     // creates receptive phonoids
     r_r_suf = CartProd( "r", r_suffices); // r suffices
     r_l_suf = CartProd( "l", vNAND( r_suffices, "l" )); // l suffices
@@ -173,7 +174,7 @@ bool isExchange(const std::string& candidate)
 
 unsigned short maxPhonoidLength(const std::string& spelling = "default")
 {
-    if (spelling == "default") return 2;
+    if (spelling == "default") return DEFAULT_MAX_PHONOID_LENGTH;
     unsigned short maximum = 0;
     for (auto ip : spelling_exchanges[spelling])
         if (ip.second.size() > maximum) maximum = ip.second.size();
